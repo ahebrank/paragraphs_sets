@@ -112,7 +112,7 @@ class InlineParagraphsWidget extends ParagraphsInlineParagraphsWidget {
         \Drupal::moduleHandler()->alter($alter_hooks, $data, $context);
 
         $item_values = [
-          'type' => $key,
+          'type' => $info['type'],
         ] + $data;
 
         $max++;
