@@ -1,0 +1,4 @@
+drupal.paragraphs_sets.admin:
+  css:
+    theme:
+      css/paragraphs_sets.admin.css: {}
