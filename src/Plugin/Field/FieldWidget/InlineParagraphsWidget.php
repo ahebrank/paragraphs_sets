@@ -58,7 +58,7 @@ class InlineParagraphsWidget extends ParagraphsInlineParagraphsWidget {
     if ($this->getDefaultParagraphTypeLabelName() !== NULL) {
       array_pop($summary);
       $summary[] = $this->t('Default paragraphs set: @default_paragraph_set', [
-        '@default_paragraph_set' => $this->getDefaultParagraphTypeLabelName()
+        '@default_paragraph_set' => $this->getDefaultParagraphTypeLabelName(),
       ]);
     }
 
@@ -161,8 +161,8 @@ class InlineParagraphsWidget extends ParagraphsInlineParagraphsWidget {
           $items->appendItem();
         }
 
-        // For multiple fields, title and description are handled by the wrapping
-        // table.
+        // For multiple fields, title and description are handled by the
+        // wrapping table.
         $element = [
           '#title' => $is_multiple ? '' : $title,
           '#description' => $is_multiple ? '' : $description,
@@ -178,7 +178,7 @@ class InlineParagraphsWidget extends ParagraphsInlineParagraphsWidget {
               '#type' => 'weight',
               '#title' => $this->t('Weight for row @number', ['@number' => $delta + 1]),
               '#title_display' => 'invisible',
-              // Note: this 'delta' is the FAPI #type 'weight' element's property.
+              // This 'delta' is the FAPI #type 'weight' element's property.
               '#delta' => $max,
               '#default_value' => $items[$delta]->_weight ?: $delta,
               '#weight' => 100,
@@ -237,7 +237,7 @@ class InlineParagraphsWidget extends ParagraphsInlineParagraphsWidget {
             '#markup' => $this->t('No @title added yet.', ['@title' => $this->getSetting('title')]),
             '#prefix' => '<em>',
             '#suffix' => '</em>',
-          ]
+          ],
         ],
       ];
 
@@ -269,6 +269,7 @@ class InlineParagraphsWidget extends ParagraphsInlineParagraphsWidget {
   }
 
   /**
+   * Builds select element for set selection.
    *
    * @param string $default
    *   Current selected set.
@@ -307,7 +308,9 @@ class InlineParagraphsWidget extends ParagraphsInlineParagraphsWidget {
       '#name' => strtr($this->fieldIdPrefix, '-', '_') . '_set_selection',
       '#value' => $text,
       '#attributes' => ['class' => ['field-set-selection-submit']],
-      '#limit_validation_errors' => [array_merge($this->fieldParents, [$field_name, 'set_selection'])],
+      '#limit_validation_errors' => [
+        array_merge($this->fieldParents, [$field_name, 'set_selection']),
+      ],
       '#submit' => [[get_class($this), 'setSetSubmit']],
       '#ajax' => [
         'callback' => [get_class($this), 'setSetAjax'],
@@ -316,7 +319,7 @@ class InlineParagraphsWidget extends ParagraphsInlineParagraphsWidget {
       ],
     ];
 
-    $selection_elements['set_selection_button']['#suffix'] = $this->t(' for %type', ['%type' => $title]);
+    $selection_elements['set_selection_button']['#suffix'] = $this->t('for %type', ['%type' => $title]);
     return $selection_elements;
   }
 
@@ -355,7 +358,9 @@ class InlineParagraphsWidget extends ParagraphsInlineParagraphsWidget {
         '#name' => strtr($this->fieldIdPrefix, '-', '_') . '_' . $machine_name . '_set_selection',
         '#value' => $this->t('@type', ['@type' => $set['label']]),
         '#attributes' => ['class' => ['field-set-selection-submit']],
-        '#limit_validation_errors' => [array_merge($this->fieldParents, [$field_name, 'set_selection'])],
+        '#limit_validation_errors' => [
+          array_merge($this->fieldParents, [$field_name, 'set_selection']),
+        ],
         '#submit' => [[get_class($this), 'setSetSubmit']],
         '#ajax' => [
           'callback' => [get_class($this), 'setSetAjax'],
@@ -435,7 +440,7 @@ class InlineParagraphsWidget extends ParagraphsInlineParagraphsWidget {
   /**
    * Returns the default paragraph type.
    *
-   * @return string $default_paragraph_type
+   * @return string
    *   Label name for default paragraph type.
    */
   protected function getDefaultParagraphTypeLabelName() {

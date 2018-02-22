@@ -11,8 +11,9 @@ Obviously you'll need to install the "Paragraphs" module.
 
 -- INSTALLATION --
 
-Install as usual, see https://www.drupal.org/documentation/install/modules-themes/modules-8
-for further information.
+Install as usual, see
+https://www.drupal.org/documentation/install/modules-themes/modules-8 for
+further information.
 
 
 -- WIDGETS --

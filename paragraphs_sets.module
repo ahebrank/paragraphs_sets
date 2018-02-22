@@ -8,6 +8,7 @@
 use Drupal\Component\Utility\Html;
 use Drupal\Core\Render\Element;
 use Drupal\Core\Template\Attribute;
+use Drupal\paragraphs_sets\Entity\ParagraphsSet;
 
 /**
  * Implements hook_theme().
@@ -61,7 +62,7 @@ function paragraphs_sets_preprocess_field_multiple_value_form__paragraphs_sets(&
       if ($key === 'add_more') {
         $variables['button'] = &$element[$key];
       }
-      else if ($key === 'set_selection') {
+      elseif ($key === 'set_selection') {
         $variables['selection'] = &$element[$key];
       }
       else {
@@ -129,4 +130,17 @@ function paragraphs_sets_preprocess_field_multiple_value_form__paragraphs_sets(&
       }
     }
   }
+}
+
+/**
+ * Helper function to load a paragraphs set.
+ *
+ * @param string $name
+ *   Name (ID) of paragraphs set.
+ *
+ * @return \Drupal\paragraphs_sets\Entity\ParagraphsSet
+ *   The loaded set or NULL if no set with the given name exists.
+ */
+function paragraphs_set_load($name) {
+  return ParagraphsSet::load($name);
 }

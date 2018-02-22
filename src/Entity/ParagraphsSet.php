@@ -12,6 +12,14 @@ use Drupal\paragraphs_sets\ParagraphsSetInterface;
  *   id = "paragraphs_set",
  *   label = @Translation("Paragraphs set"),
  *   config_prefix = "set",
+ *   handlers = {
+ *     "list_builder" = "Drupal\paragraphs_sets\Controller\ParagraphsSetListBuilder",
+ *     "form" = {
+ *       "add" = "Drupal\paragraphs_sets\Form\ParagraphsSetForm",
+ *       "edit" = "Drupal\paragraphs_sets\Form\ParagraphsSetForm",
+ *       "delete" = "Drupal\Core\Entity\EntityDeleteForm"
+ *     }
+ *   },
  *   admin_permission = "administer paragraphs sets",
  *   entity_keys = {
  *     "id" = "id",
@@ -21,7 +29,12 @@ use Drupal\paragraphs_sets\ParagraphsSetInterface;
  *     "id",
  *     "label",
  *     "description",
- *     "paragraphs"
+ *     "paragraphs",
+ *   },
+ *   links = {
+ *     "edit-form" = "/admin/structure/paragraphs_set/{paragraphs_set}",
+ *     "delete-form" = "/admin/structure/paragraphs_set/{paragraphs_set}/delete",
+ *     "collection" = "/admin/structure/paragraphs_set",
  *   }
  * )
  */
