@@ -26,6 +26,13 @@ use Drupal\paragraphs\Plugin\Field\FieldWidget\InlineParagraphsWidget as Paragra
 class InlineParagraphsWidget extends ParagraphsInlineParagraphsWidget {
 
   /**
+   * Indicates whether the current widget instance is in translation.
+   *
+   * @var bool
+   */
+  private $isTranslating;
+
+  /**
    * {@inheritdoc}
    */
   public function settingsForm(array $form, FormStateInterface $form_state) {
@@ -62,6 +69,7 @@ class InlineParagraphsWidget extends ParagraphsInlineParagraphsWidget {
    * {@inheritdoc}
    */
   public function formMultipleElements(FieldItemListInterface $items, array &$form, FormStateInterface $form_state) {
+    $host = $items->getEntity();
     $field_name = $this->fieldDefinition->getName();
     $cardinality = $this->fieldDefinition->getFieldStorageDefinition()->getCardinality();
     $this->fieldParents = $form['#parents'];
@@ -96,8 +104,10 @@ class InlineParagraphsWidget extends ParagraphsInlineParagraphsWidget {
       $max = 0;
       $target_type = $this->getFieldSetting('target_type');
       $context = [
-        'field' => $field_name,
         'set' => $set,
+        'field' => $this->fieldDefinition,
+        'form' => $form,
+        'entity' => $host,
       ];
       foreach ($sets[$set]['paragraphs'] as $key => $info) {
         $alter_hooks = [
@@ -244,7 +254,6 @@ class InlineParagraphsWidget extends ParagraphsInlineParagraphsWidget {
       }
     }
 
-    $host = $items->getEntity();
     $this->initIsTranslating($form_state, $host);
 
     $elements['set_selection'] = $this->buildSelectSetSelection($set);
@@ -461,6 +470,16 @@ class InlineParagraphsWidget extends ParagraphsInlineParagraphsWidget {
     }
 
     return NULL;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function massageFormValues(array $values, array $form, FormStateInterface $form_state) {
+    $values = array_filter($values, function ($item) {
+      return !isset($item['set_selection_select']);
+    });
+    return parent::massageFormValues($values, $form, $form_state);
   }
 
 }
