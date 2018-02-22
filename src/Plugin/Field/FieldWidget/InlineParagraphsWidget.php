@@ -88,20 +88,22 @@ class InlineParagraphsWidget extends ParagraphsInlineParagraphsWidget {
     }
 
     if ($set) {
-      // Clear all items.
-      $items->filter(function () {
-        return FALSE;
-      });
-      // Clear field state.
-      $field_state['paragraphs'] = [];
-      // Clear user input.
-      foreach ($user_input[$field_name] as $key => $value) {
-        if (!is_numeric($key) || empty($value['subform'])) {
-          continue;
+      if (isset($field_state['button_type']) && ('set_selection_button' === $field_state['button_type'])) {
+        // Clear all items.
+        $items->filter(function () {
+          return FALSE;
+        });
+        // Clear field state.
+        $field_state['paragraphs'] = [];
+        // Clear user input.
+        foreach ($user_input[$field_name] as $key => $value) {
+          if (!is_numeric($key) || empty($value['subform'])) {
+            continue;
+          }
+          unset($user_input[$field_name][$key]);
         }
-        unset($user_input[$field_name][$key]);
+        $max = 0;
       }
-      $max = 0;
       $target_type = $this->getFieldSetting('target_type');
       $context = [
         'set' => $set,
@@ -301,12 +303,10 @@ class InlineParagraphsWidget extends ParagraphsInlineParagraphsWidget {
       '#label_display' => 'hidden',
     ];
 
-    $text = $this->t('Select set');
-
     $selection_elements['set_selection_button'] = [
       '#type' => 'submit',
       '#name' => strtr($this->fieldIdPrefix, '-', '_') . '_set_selection',
-      '#value' => $text,
+      '#value' => $this->t('Select set'),
       '#attributes' => ['class' => ['field-set-selection-submit']],
       '#limit_validation_errors' => [
         array_merge($this->fieldParents, [$field_name, 'set_selection']),
@@ -318,65 +318,26 @@ class InlineParagraphsWidget extends ParagraphsInlineParagraphsWidget {
         'effect' => 'fade',
       ],
     ];
-
     $selection_elements['set_selection_button']['#suffix'] = $this->t('for %type', ['%type' => $title]);
-    return $selection_elements;
-  }
 
-  /**
-   * Builds dropdown button for set selection.
-   *
-   * @return array
-   *   The form element array.
-   */
-  protected function buildButtonsSetSelection() {
-    // Hide the button when translating.
-    $set_selection_elements = [
-      '#type' => 'container',
-      '#theme_wrappers' => ['paragraphs_dropbutton_wrapper'],
+    $selection_elements['append_selection_button'] = [
+      '#type' => 'submit',
+      '#name' => strtr($this->fieldIdPrefix, '-', '_') . '_append_selection',
+      '#value' => $this->t('Append set'),
+      '#attributes' => ['class' => ['field-append-selection-submit']],
+      '#limit_validation_errors' => [
+        array_merge($this->fieldParents, [$field_name, 'append_selection']),
+      ],
+      '#submit' => [[get_class($this), 'setSetSubmit']],
+      '#ajax' => [
+        'callback' => [get_class($this), 'setSetAjax'],
+        'wrapper' => $this->fieldWrapperId,
+        'effect' => 'fade',
+      ],
     ];
-    $field_name = $this->fieldDefinition->getName();
+    $selection_elements['append_selection_button']['#suffix'] = $this->t('to %type', ['%type' => $title]);
 
-    $drop_button = FALSE;
-    if (count(static::getSets()) > 1) {
-      $drop_button = TRUE;
-      $set_selection_elements['#prefix'] = $this->t('Use set');
-      $set_selection_elements['#theme_wrappers'] = ['dropbutton_wrapper'];
-      $set_selection_elements['prefix'] = [
-        '#markup' => '<ul class="dropbutton">',
-        '#weight' => -999,
-      ];
-      $set_selection_elements['suffix'] = [
-        '#markup' => '</ul>',
-        '#weight' => 999,
-      ];
-    }
-
-    foreach (static::getSets() as $machine_name => $set) {
-      $set_selection_elements['set_selection_button_' . $machine_name] = [
-        '#type' => 'submit',
-        '#name' => strtr($this->fieldIdPrefix, '-', '_') . '_' . $machine_name . '_set_selection',
-        '#value' => $this->t('@type', ['@type' => $set['label']]),
-        '#attributes' => ['class' => ['field-set-selection-submit']],
-        '#limit_validation_errors' => [
-          array_merge($this->fieldParents, [$field_name, 'set_selection']),
-        ],
-        '#submit' => [[get_class($this), 'setSetSubmit']],
-        '#ajax' => [
-          'callback' => [get_class($this), 'setSetAjax'],
-          'wrapper' => $this->fieldWrapperId,
-          'effect' => 'fade',
-        ],
-        '#set_machine_name' => $machine_name,
-      ];
-
-      if ($drop_button) {
-        $set_selection_elements['set_selection_button_' . $machine_name]['#prefix'] = '<li>';
-        $set_selection_elements['set_selection_button_' . $machine_name]['#suffix'] = '</li>';
-      }
-    }
-
-    return $set_selection_elements;
+    return $selection_elements;
   }
 
   /**
@@ -400,9 +361,11 @@ class InlineParagraphsWidget extends ParagraphsInlineParagraphsWidget {
     $element = NestedArray::getValue($form, array_slice($button['#array_parents'], 0, -2));
     $field_name = $element['#field_name'];
     $parents = $element['#field_parents'];
+    $button_type = end($button['#array_parents']);
 
     // Increment the items count.
     $widget_state = static::getWidgetState($parents, $field_name, $form_state);
+    $widget_state['button_type'] = $button_type;
 
     if (isset($button['#set_machine_name'])) {
       $widget_state['selected_set'] = $button['#set_machine_name'];
