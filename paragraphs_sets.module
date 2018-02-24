@@ -74,6 +74,7 @@ function paragraphs_sets_preprocess_field_multiple_value_form__paragraphs_sets(&
     // Add the items as table rows.
     foreach ($items as $item) {
       $item['_weight']['#attributes']['class'] = [$order_class];
+      $item['#attributes']['data-paragraphs-bundle'] = $item['#paragraphs_bundle'];
 
       // Remove weight form element from item render array so it can be rendered
       // in a separate table column.
@@ -87,7 +88,11 @@ function paragraphs_sets_preprocess_field_multiple_value_form__paragraphs_sets(&
       ];
       $rows[] = [
         'data' => $cells,
-        'class' => ['draggable'],
+        'class' => [
+          'draggable',
+          'paragraphs-item',
+          Html::getClass("paragraphs-item--{$item['#paragraphs_bundle']}"),
+        ],
       ];
     }
 

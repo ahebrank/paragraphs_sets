@@ -168,6 +168,7 @@ class InlineParagraphsWidget extends ParagraphsInlineParagraphsWidget {
         $element = [
           '#title' => $is_multiple ? '' : $title,
           '#description' => $is_multiple ? '' : $description,
+          '#paragraphs_bundle' => $items[$delta]->entity->bundle(),
         ];
         $element = $this->formSingleElement($items, $delta, $element, $form, $form_state);
 
