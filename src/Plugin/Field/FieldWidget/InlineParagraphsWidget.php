@@ -16,7 +16,7 @@ use Drupal\paragraphs\Plugin\Field\FieldWidget\InlineParagraphsWidget as Paragra
  *
  * @FieldWidget(
  *   id = "entity_reference_paragraphs_sets",
- *   label = @Translation("Paragraphs Classic (sets)"),
+ *   label = @Translation("Paragraphs sets classic"),
  *   description = @Translation("A paragraphs inline form widget with sets."),
  *   field_types = {
  *     "entity_reference_revisions"
@@ -168,11 +168,13 @@ class InlineParagraphsWidget extends ParagraphsInlineParagraphsWidget {
         $element = [
           '#title' => $is_multiple ? '' : $title,
           '#description' => $is_multiple ? '' : $description,
-          '#paragraphs_bundle' => $items[$delta]->entity->bundle(),
+          '#paragraphs_bundle' => '',
         ];
         $element = $this->formSingleElement($items, $delta, $element, $form, $form_state);
 
         if ($element) {
+          $widget_state = static::getWidgetState($element['#field_parents'], $field_name, $form_state);
+          $element['#paragraphs_bundle'] = $widget_state['paragraphs'][$delta]['entity']->bundle();
           // Input field for the delta (drag-n-drop reordering).
           if ($is_multiple) {
             // We name the element '_weight' to avoid clashing with elements
@@ -203,6 +205,7 @@ class InlineParagraphsWidget extends ParagraphsInlineParagraphsWidget {
 
     $field_state = static::getWidgetState($this->fieldParents, $field_name, $form_state);
     $field_state['real_item_count'] = $this->realItemCount;
+    $field_state['add_mode'] = $this->getSetting('add_mode');
     $field_state['selected_set'] = NULL;
     static::setWidgetState($this->fieldParents, $field_name, $form_state, $field_state);
 
@@ -259,7 +262,7 @@ class InlineParagraphsWidget extends ParagraphsInlineParagraphsWidget {
 
     $this->initIsTranslating($form_state, $host);
 
-    $elements['set_selection'] = $this->buildSelectSetSelection($set);
+    $elements['set_selection'] = $this->buildSelectSetSelection($form_state, $set);
 
     if (($this->realItemCount < $cardinality || $cardinality == FieldStorageDefinitionInterface::CARDINALITY_UNLIMITED) && !$form_state->isProgrammed() && !$this->isTranslating) {
       $elements['add_more'] = $this->buildAddActions();
@@ -274,19 +277,27 @@ class InlineParagraphsWidget extends ParagraphsInlineParagraphsWidget {
   /**
    * Builds select element for set selection.
    *
+   * @param \Drupal\Core\Form\FormStateInterface $form_state
+   *   The current state of the form.
    * @param string $default
    *   Current selected set.
    *
    * @return array
    *   The form element array.
    */
-  protected function buildSelectSetSelection($default = NULL) {
+  protected function buildSelectSetSelection(FormStateInterface $form_state, $default = NULL) {
     $field_name = $this->fieldDefinition->getName();
     $title = $this->fieldDefinition->getLabel();
+    $cardinality = $this->fieldDefinition->getFieldStorageDefinition()->getCardinality();
+
     $options = [
       '_none' => $this->t('- None -'),
     ];
     foreach (static::getSets() as $key => $set) {
+      if (($cardinality !== FieldStorageDefinitionInterface::CARDINALITY_UNLIMITED) && (count($set['paragraphs']) > $cardinality)) {
+        // Do not add sets having more paragraphs than allowed.
+        continue;
+      }
       $options[$key] = $set['label'];
     }
     $selection_elements = [
@@ -321,22 +332,24 @@ class InlineParagraphsWidget extends ParagraphsInlineParagraphsWidget {
     ];
     $selection_elements['set_selection_button']['#suffix'] = $this->t('for %type', ['%type' => $title]);
 
-    $selection_elements['append_selection_button'] = [
-      '#type' => 'submit',
-      '#name' => strtr($this->fieldIdPrefix, '-', '_') . '_append_selection',
-      '#value' => $this->t('Append set'),
-      '#attributes' => ['class' => ['field-append-selection-submit']],
-      '#limit_validation_errors' => [
-        array_merge($this->fieldParents, [$field_name, 'append_selection']),
-      ],
-      '#submit' => [[get_class($this), 'setSetSubmit']],
-      '#ajax' => [
-        'callback' => [get_class($this), 'setSetAjax'],
-        'wrapper' => $this->fieldWrapperId,
-        'effect' => 'fade',
-      ],
-    ];
-    $selection_elements['append_selection_button']['#suffix'] = $this->t('to %type', ['%type' => $title]);
+    if ($this->realItemCount && ($this->realItemCount < $cardinality || $cardinality == FieldStorageDefinitionInterface::CARDINALITY_UNLIMITED) && !$form_state->isProgrammed() && !$this->isTranslating) {
+      $selection_elements['append_selection_button'] = [
+        '#type' => 'submit',
+        '#name' => strtr($this->fieldIdPrefix, '-', '_') . '_append_selection',
+        '#value' => $this->t('Append set'),
+        '#attributes' => ['class' => ['field-append-selection-submit']],
+        '#limit_validation_errors' => [
+          array_merge($this->fieldParents, [$field_name, 'append_selection']),
+        ],
+        '#submit' => [[get_class($this), 'setSetSubmit']],
+        '#ajax' => [
+          'callback' => [get_class($this), 'setSetAjax'],
+          'wrapper' => $this->fieldWrapperId,
+          'effect' => 'fade',
+        ],
+      ];
+      $selection_elements['append_selection_button']['#suffix'] = $this->t('to %type', ['%type' => $title]);
+    }
 
     return $selection_elements;
   }
