@@ -19,6 +19,10 @@ function paragraphs_sets_theme() {
       'render element' => 'element',
       'path' => \drupal_get_path('module', 'paragraphs_sets') . '/templates',
     ],
+    'paragraphs_sets_add_dialog' => [
+      'render element' => 'element',
+      'path' => \drupal_get_path('module', 'paragraphs_sets') . '/templates',
+    ],
   ];
 }
 
@@ -133,6 +137,42 @@ function paragraphs_sets_preprocess_field_multiple_value_form__paragraphs_sets(&
       else {
         $variables['elements'][] = $element[$key];
       }
+    }
+  }
+
+  // Call paragraphs_preprocess_field_multiple_value_form() to fix table header.
+  call_user_func_array('paragraphs_preprocess_field_multiple_value_form', [&$variables]);
+}
+
+/**
+ * Prepares variables for modal form add widget template.
+ *
+ * Default template: paragraphs-sets-add-dialog.html.twig.
+ *
+ * @param array $variables
+ *   An associative array containing:
+ *   - buttons: An array of buttons to display in the modal form.
+ */
+function template_preprocess_paragraphs_sets_add_dialog(array &$variables) {
+  // Define variables for the template.
+  $variables += [
+    'buttons' => [],
+    'buttons_title' => $variables['element']['#buttons_title'],
+    'sets' => [],
+    'sets_title' => t('Paragraph Sets'),
+  ];
+  foreach (Element::children($variables['element']) as $key) {
+    if ($key == 'add_modal_form_area') {
+      // $add variable for the add button.
+      $variables['add'] = $variables['element'][$key];
+    }
+    elseif (strpos($key, 'append_selection_button_') === 0) {
+      // Buttons for the paragraph sets in the modal form.
+      $variables['sets'][$key] = $variables['element'][$key];
+    }
+    else {
+      // Buttons for the paragraph types in the modal form.
+      $variables['buttons'][$key] = $variables['element'][$key];
     }
   }
 }
