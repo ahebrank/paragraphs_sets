@@ -294,7 +294,7 @@ class InlineParagraphsWidget extends ParagraphsInlineParagraphsWidget {
       '_none' => $this->t('- None -'),
     ];
     foreach (static::getSets() as $key => $set) {
-      if (($cardinality !== FieldStorageDefinitionInterface::CARDINALITY_UNLIMITED) && (count($set['paragraphs']) > $cardinality)) {
+      if (($cardinality !== FieldStorageDefinitionInterface::CARDINALITY_UNLIMITED) && ((count($set['paragraphs']) > $cardinality) || (count($set['paragraphs']) > $this->realItemCount))) {
         // Do not add sets having more paragraphs than allowed.
         continue;
       }
