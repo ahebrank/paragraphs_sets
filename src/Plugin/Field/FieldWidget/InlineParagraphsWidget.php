@@ -138,6 +138,7 @@ class InlineParagraphsWidget extends ParagraphsInlineParagraphsWidget {
         ];
       }
       $field_state['items_count'] = $max;
+      $field_state['selected_set'] = NULL;
     }
 
     $this->realItemCount = $max;

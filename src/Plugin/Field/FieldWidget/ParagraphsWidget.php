@@ -130,8 +130,9 @@ class ParagraphsWidget extends ParagraphsParagraphsWidget {
           'mode' => 'edit',
           'original_delta' => $max,
         ];
-        $field_state['items_count'] = $max;
       }
+      $field_state['items_count'] = $max;
+      $field_state['selected_set'] = NULL;
     }
 
     $this->realItemCount = $max;
