@@ -49,10 +49,15 @@ class ParagraphsWidget extends ParagraphsParagraphsWidget {
   public function settingsSummary() {
     $summary = parent::settingsSummary();
     if ($this->getDefaultParagraphTypeLabelName() !== NULL) {
-      array_pop($summary);
-      $summary[] = $this->t('Default paragraphs set: @default_paragraph_set', [
-        '@default_paragraph_set' => $this->getDefaultParagraphTypeLabelName(),
-      ]);
+      // Find "Default paragraph type" in summary and replace it.
+      foreach ($summary as $key => $value) {
+        if (strpos($value, 'Default paragraph type') !== 0) {
+          continue;
+        }
+        $summary[$key] = $this->t('Default paragraphs set: @default_paragraph_set', [
+          '@default_paragraph_set' => $this->getDefaultParagraphTypeLabelName(),
+        ]);
+      }
     }
 
     return $summary;
