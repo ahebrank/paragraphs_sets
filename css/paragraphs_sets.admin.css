@@ -34,6 +34,11 @@
 .js .field--widget-entity-reference-paragraphs-sets .set-selection-wrapper {
   margin-bottom: 1em;
 }
-.js .field--widget-entity-reference-paragraphs-sets .set-selection-wrapper .button {
+.js .set-selection-wrapper .button {
   margin: 0;
+}
+
+.js .set-selection-wrapper .paragraphs-set-button {
+  display: inline-block;
+  margin-right: 1em;
 }

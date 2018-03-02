@@ -336,7 +336,8 @@ class InlineParagraphsWidget extends ParagraphsInlineParagraphsWidget {
         'effect' => 'fade',
       ],
     ];
-    $selection_elements['set_selection_button']['#suffix'] = $this->t('for %type', ['%type' => $title]);
+    $selection_elements['set_selection_button']['#prefix'] = '<div class="paragraphs-set-button paragraphs-set-button-set">';
+    $selection_elements['set_selection_button']['#suffix'] = $this->t('for %type', ['%type' => $title]) . '</div>';
 
     if ($this->realItemCount && ($this->realItemCount < $cardinality || $cardinality == FieldStorageDefinitionInterface::CARDINALITY_UNLIMITED) && !$form_state->isProgrammed() && !$this->isTranslating) {
       $selection_elements['append_selection_button'] = [
@@ -354,7 +355,8 @@ class InlineParagraphsWidget extends ParagraphsInlineParagraphsWidget {
           'effect' => 'fade',
         ],
       ];
-      $selection_elements['append_selection_button']['#suffix'] = $this->t('to %type', ['%type' => $title]);
+      $selection_elements['append_selection_button']['#prefix'] = '<div class="paragraphs-set-button paragraphs-set-button-append">';
+      $selection_elements['append_selection_button']['#suffix'] = $this->t('to %type', ['%type' => $title]) . '</div>';
     }
 
     return $selection_elements;
