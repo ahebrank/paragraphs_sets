@@ -108,6 +108,7 @@ class ParagraphsWidget extends ParagraphsParagraphsWidget {
         'set' => $set,
         'field' => $this->fieldDefinition,
         'form' => $form,
+        'form_state' => $form_state,
         'entity' => $host,
       ];
       foreach ($sets[$set]['paragraphs'] as $key => $info) {

@@ -18,9 +18,11 @@
  * @param array $context
  *   An associative array containing the following key-value pairs:
  *   - field: Name of field currently operated on.
- *   - set: Machine name of current set.
+ *   - form: The form render array.
+ *   - form_state: The current form state.
  *   - key: Internal key of paragraph in set.
  *   - paragraphs_bundle: Bundle name of paragraph.
+ *   - set: Machine name of current set.
  */
 function hook_paragraphs_set_data_alter(array &$data, array $context) {
 }
@@ -32,10 +34,12 @@ function hook_paragraphs_set_data_alter(array &$data, array $context) {
  *   Default field values for the paragraph bundles in the set.
  * @param array $context
  *   An associative array containing the following key-value pairs:
- *   - set: Machine name of current set.
  *   - field: Name of field currently operated on.
+ *   - form: The form render array.
+ *   - form_state: The current form state.
  *   - key: Internal key of paragraph in set.
  *   - paragraphs_bundle: Bundle name of paragraph.
+ *   - set: Machine name of current set.
  */
 function hook_paragraphs_set_SET_data_alter(array &$data, array $context) {
 }
@@ -47,10 +51,12 @@ function hook_paragraphs_set_SET_data_alter(array &$data, array $context) {
  *   Default field values for the paragraph bundles in the set.
  * @param array $context
  *   An associative array containing the following key-value pairs:
- *   - set: Machine name of current set.
  *   - field: Name of field currently operated on.
+ *   - form: The form render array.
+ *   - form_state: The current form state.
  *   - key: Internal key of paragraph in set.
  *   - paragraphs_bundle: Bundle name of paragraph.
+ *   - set: Machine name of current set.
  */
 function hook_paragraphs_set_SET_FIELD_NAME_data_alter(array &$data, array $context) {
 }
