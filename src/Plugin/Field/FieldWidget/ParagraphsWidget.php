@@ -120,7 +120,7 @@ class ParagraphsWidget extends ParagraphsParagraphsWidget {
 
         $context['key'] = $key;
         $context['paragraphs_bundle'] = $info['type'];
-        $data = $info['data'];
+        $data = empty($info['data']) ? [] : $info['data'];
         \Drupal::moduleHandler()->alter($alter_hooks, $data, $context);
 
         $item_values = [

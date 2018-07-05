@@ -26,13 +26,6 @@ use Drupal\paragraphs\Plugin\Field\FieldWidget\InlineParagraphsWidget as Paragra
 class InlineParagraphsWidget extends ParagraphsInlineParagraphsWidget {
 
   /**
-   * Indicates whether the current widget instance is in translation.
-   *
-   * @var bool
-   */
-  private $isTranslating;
-
-  /**
    * {@inheritdoc}
    */
   public function settingsForm(array $form, FormStateInterface $form_state) {
