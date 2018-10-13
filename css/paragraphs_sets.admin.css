@@ -40,5 +40,5 @@
 
 .js .set-selection-wrapper .paragraphs-set-button {
   display: inline-block;
-  margin-right: 1em;
+  margin: 0 1rem 1rem 0;
 }
