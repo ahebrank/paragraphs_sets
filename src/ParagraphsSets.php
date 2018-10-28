@@ -82,7 +82,7 @@ class ParagraphsSets {
     /** @var \Drupal\paragraphs\Plugin\Field\FieldWidget\ParagraphsWidget $widget */
     $widget = $context['widget'];
     if (!($widget instanceof ParagraphsWidget)) {
-      return;
+      return [];
     }
 
     $items = $context['items'];
@@ -91,7 +91,7 @@ class ParagraphsSets {
     $title = $field_definition->getLabel();
     $cardinality = $field_definition->getFieldStorageDefinition()->getCardinality();
     $field_parents = $context['form']['#parents'];
-    $field_id_prefix = implode('-', array_merge($field_parents, array($field_name)));
+    $field_id_prefix = implode('-', array_merge($field_parents, [$field_name]));
     $field_wrapper_id = Html::getId($field_id_prefix . '-add-more-wrapper');
     $field_state = static::getWidgetState($field_parents, $field_name, $form_state);
 
@@ -215,8 +215,8 @@ class ParagraphsSets {
    */
   public static function getWidgetStateParents(array $parents, $field_name) {
     // Field processing data is placed at
-    // $form_state->get(['field_storage', '#parents', ...$parents..., '#fields', $field_name]),
-    // to avoid clashes between field names and $parents parts.
+    // $form_state->get(['field_storage', '#parents', ...$parents..., '#fields',
+    // $field_name]), to avoid clashes between field names and $parents parts.
     return array_merge(['field_storage', '#parents'], $parents, ['#fields', $field_name]);
   }
 

@@ -4,6 +4,7 @@
  * @file
  * Main functions of paragraphs_sets.module.
  */
+
 use Drupal\Component\Utility\Html;
 use Drupal\Core\Entity\Entity\EntityFormDisplay;
 use Drupal\Core\Field\FieldFilteredMarkup;
@@ -46,7 +47,6 @@ function paragraphs_sets_field_widget_multivalue_form_alter(array &$elements, Fo
   /** @var \Drupal\Core\Field\FieldDefinitionInterface $field_definition */
   $field_definition = $items->getFieldDefinition();
   $field_name = $field_definition->getName();
-  $cardinality = $field_definition->getFieldStorageDefinition()->getCardinality();
   $field_parents = $form['#parents'];
   $field_state = ParagraphsSets::getWidgetState($field_parents, $field_name, $form_state);
 

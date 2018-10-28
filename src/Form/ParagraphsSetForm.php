@@ -83,7 +83,7 @@ class ParagraphsSetForm extends EntityForm {
         [
           'type' => 'text_simple',
           'data' => [
-            'field_headline' => 'Build something amazing with Drupal'
+            'field_headline' => 'Build something amazing with Drupal',
           ],
         ],
         [
@@ -140,7 +140,7 @@ class ParagraphsSetForm extends EntityForm {
     parent::save($form, $form_state);
 
     drupal_set_message($this->t('Saved the %label Paragraphs set.', [
-        '%label' => $this->entity->label(),
+      '%label' => $this->entity->label(),
     ]));
     $form_state->setRedirect('entity.paragraphs_set.collection');
   }
