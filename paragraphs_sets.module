@@ -8,6 +8,7 @@
 use Drupal\Component\Utility\Html;
 use Drupal\Core\Entity\Entity\EntityFormDisplay;
 use Drupal\Core\Field\FieldFilteredMarkup;
+use Drupal\Core\Field\FieldStorageDefinitionInterface;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Render\Element;
 use Drupal\Core\Template\Attribute;
@@ -198,11 +199,49 @@ function paragraphs_sets_field_widget_multivalue_form_alter(array &$elements, Fo
 
   $field_state = ParagraphsSets::getWidgetState($field_parents, $field_name, $form_state);
   $field_state['real_item_count'] = $field_state['items_count'];
-  $field_state['add_mode'] = $field_definition->getSetting('add_mode');
+  $field_state['add_mode'] = $widget->getSetting('add_mode');
   ParagraphsSets::setWidgetState($field_parents, $field_name, $form_state, $field_state);
 
   if ('field_multiple_value_form' === $elements['#theme']) {
     $elements['#theme'] = 'field_multiple_value_form__paragraphs_sets';
+  }
+  if ('modal' === $field_state['add_mode']) {
+    $elements['add_more']['#theme'] = 'paragraphs_sets_add_dialog';
+    $elements['add_more']['#widget_title'] = $widget->getSetting('title');
+    $elements['add_more']['#widget_title_plural'] = $widget->getSetting('title_plural');
+    $cardinality = $field_definition->getFieldStorageDefinition()->getCardinality();
+    $field_id_prefix = implode('-', array_merge($field_parents, [$field_name]));
+    $field_wrapper_id = Html::getId($field_id_prefix . '-add-more-wrapper');
+
+    foreach ($sets as $machine_name => $set) {
+      if (($cardinality !== FieldStorageDefinitionInterface::CARDINALITY_UNLIMITED) && (count($set['paragraphs']) > $cardinality)) {
+        // Do not add sets having more paragraphs than allowed.
+        continue;
+      }
+      $button_key = 'append_selection_button_' . $machine_name;
+      $elements['add_more'][$button_key] = ParagraphsWidget::expandButton([
+        '#type' => 'submit',
+        '#name' => $field_id_prefix . '_' . $machine_name . '_set_set',
+        '#value' => $set['label'],
+        '#attributes' => [
+          'class' => [
+            'field-add-more-submit',
+            'field-append-set-submit',
+          ],
+        ],
+        '#limit_validation_errors' => [
+          array_merge($field_parents, [
+            $field_definition->getName(), 'set_set',
+          ]),
+        ],
+        '#submit' => [['Drupal\paragraphs_sets\ParagraphsSets', 'setSetSubmit']],
+        '#ajax' => [
+          'callback' => ['Drupal\paragraphs_sets\ParagraphsSets', 'setSetAjax'],
+          'wrapper' => $field_wrapper_id,
+        ],
+        '#set_machine_name' => $machine_name,
+      ]);
+    }
   }
 
   $context['widget'] = $widget;
@@ -341,9 +380,9 @@ function template_preprocess_paragraphs_sets_add_dialog(array &$variables) {
   // Define variables for the template.
   $variables += [
     'buttons' => [],
-    'buttons_title' => $variables['element']['#buttons_title'],
+    'buttons_title' => $variables['element']['#widget_title_plural'],
     'sets' => [],
-    'sets_title' => t('Paragraph Sets'),
+    'sets_title' => t('@title sets', ['@title' => $variables['element']['#widget_title']]),
   ];
   foreach (Element::children($variables['element']) as $key) {
     if ($key == 'add_modal_form_area') {

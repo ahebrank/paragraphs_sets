@@ -14,8 +14,8 @@
 {{ add }}
 <div class="paragraphs-add-dialog js-hide">
   {% if buttons %}
-    <label>{{ buttons_title }}</label>
-    <ul class="paragraphs-add-dialog-list">
+    <label class="label__buttons">{{ buttons_title }}</label>
+    <ul class="paragraphs-add-dialog-list paragraphs-add-dialog-list__buttons">
       {% for button in buttons %}
         <li class="paragraphs-add-dialog-row">
           {{ button }}
@@ -24,8 +24,8 @@
     </ul>
   {% endif %}
   {% if sets %}
-    <label>{{ sets_title }}</label>
-    <ul class="paragraphs-add-dialog-list">
+    <label class="label__sets">{{ sets_title }}</label>
+    <ul class="paragraphs-add-dialog-list paragraphs-add-dialog-list__sets">
       {% for set in sets %}
         <li class="paragraphs-add-dialog-row">
           {{ set }}
