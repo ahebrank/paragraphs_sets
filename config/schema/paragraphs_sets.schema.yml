@@ -11,6 +11,9 @@ paragraphs_sets.set.*:
     label:
       type: label
       label: 'Label'
+    icon_uuid:
+      type: string
+      label: 'Icon uuid'
     paragraphs:
       type: sequence
       mapping:

@@ -52,6 +52,19 @@ class ParagraphsSetForm extends EntityForm {
       '#disabled' => !$paragraphs_set->isNew(),
     ];
 
+    $form['icon_file'] = [
+      '#title' => $this->t('Paragraphs set icon'),
+      '#type' => 'managed_file',
+      '#upload_location' => 'public://paragraphs_set_icon/',
+      '#upload_validators' => [
+        'file_validate_extensions' => ['png jpg svg'],
+      ],
+    ];
+
+    if ($file = $this->entity->getIconFile()) {
+      $form['icon_file']['#default_value'] = ['target_id' => $file->id()];
+    }
+
     $form['description'] = [
       '#title' => $this->t('Description'),
       '#type' => 'textarea',
@@ -112,6 +125,17 @@ class ParagraphsSetForm extends EntityForm {
    * {@inheritdoc}
    */
   public function validateForm(array &$form, FormStateInterface $form_state) {
+    $paragraphs_set = $this->entity;
+
+    $icon_file = $form_state->getValue(['icon_file', '0']);
+    // Set the file UUID to the paragraph configuration.
+    if (!empty($icon_file) && $file = $this->entityTypeManager->getStorage('file')->load($icon_file)) {
+      $paragraphs_set->set('icon_uuid', $file->uuid());
+    }
+    else {
+      $paragraphs_set->set('icon_uuid', NULL);
+    }
+
     $paragraphs_config = $form_state->getValue('paragraphs_config') ?: 'paragraphs:';
 
     try {
