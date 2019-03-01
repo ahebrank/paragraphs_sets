@@ -23,11 +23,11 @@ function paragraphs_sets_theme() {
   return [
     'field_multiple_value_form__paragraphs_sets' => [
       'render element' => 'element',
-      'path' => \drupal_get_path('module', 'paragraphs_sets') . '/templates',
+      'path' => drupal_get_path('module', 'paragraphs_sets') . '/templates',
     ],
     'paragraphs_sets_add_dialog' => [
       'render element' => 'element',
-      'path' => \drupal_get_path('module', 'paragraphs_sets') . '/templates',
+      'path' => drupal_get_path('module', 'paragraphs_sets') . '/templates',
     ],
   ];
 }
@@ -60,7 +60,10 @@ function paragraphs_sets_field_widget_multivalue_form_alter(array &$elements, Fo
   $max = $field_state['items_count'];
   $entity_type_manager = \Drupal::entityTypeManager();
 
-  $sets = ParagraphsSets::getSets();
+  // Get a list of all Paragraphs types allowed in this field.
+  $field_allowed_paragraphs_types = $widget->getAllowedTypes($field_definition);
+
+  $sets = ParagraphsSets::getSets(array_keys($field_allowed_paragraphs_types));
   $set = isset($field_state['selected_set']) ? $field_state['selected_set'] : NULL;
 
   // Consider adding a default paragraph set for new host entities.

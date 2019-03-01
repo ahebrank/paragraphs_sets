@@ -17,10 +17,13 @@ class ParagraphsSets {
   /**
    * Get a list of all available sets.
    *
+   * @param array $allowed_paragraphs_types
+   *   Optional list of allowed paragraphs types.
+   *
    * @return array
    *   List of all paragraphs sets.
    */
-  public static function getSets() {
+  public static function getSets(array $allowed_paragraphs_types = []) {
     $query = \Drupal::entityQuery('paragraphs_set');
     $config_factory = \Drupal::configFactory();
     $results = $query->execute();
@@ -28,7 +31,14 @@ class ParagraphsSets {
     foreach ($results as $id) {
       /** @var \Drupal\Core\Config\ImmutableConfig $config */
       if (($config = $config_factory->get("paragraphs_sets.set.{$id}"))) {
-        $sets[$id] = $config->getRawData();
+        $data = $config->getRawData();
+        if (!empty($allowed_paragraphs_types)) {
+          $types_filtered = array_intersect(array_column($data['paragraphs'], 'type'), $allowed_paragraphs_types);
+          if (count($types_filtered) !== count($data['paragraphs'])) {
+            continue;
+          }
+        }
+        $sets[$id] = $data;
       }
     }
 
