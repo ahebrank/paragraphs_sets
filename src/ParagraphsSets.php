@@ -105,10 +105,13 @@ class ParagraphsSets {
     $field_wrapper_id = Html::getId($field_id_prefix . '-add-more-wrapper');
     $field_state = static::getWidgetState($field_parents, $field_name, $form_state);
 
+    // Get a list of all Paragraphs types allowed in this field.
+    $field_allowed_paragraphs_types = $widget->getAllowedTypes($field_definition);
+
     $options = [
       '_none' => t('- None -'),
     ];
-    foreach (static::getSets() as $key => $set) {
+    foreach (static::getSets(array_keys($field_allowed_paragraphs_types)) as $key => $set) {
       if (($cardinality !== FieldStorageDefinitionInterface::CARDINALITY_UNLIMITED) && (count($set['paragraphs']) > $cardinality)) {
         // Do not add sets having more paragraphs than allowed.
         continue;
@@ -267,6 +270,58 @@ class ParagraphsSets {
     static::setWidgetState($parents, $field_name, $form_state, $widget_state);
 
     $form_state->setRebuild();
+  }
+
+  /**
+   * Prepares the widget state to add a new paragraph at a specific position.
+   *
+   * In addition to the widget state change, also user input could be modified
+   * to handle adding of a new paragraph at a specific position between existing
+   * paragraphs.
+   *
+   * @param array $widget_state
+   *   Widget state as reference, so that it can be updated.
+   * @param \Drupal\Core\Form\FormStateInterface $form_state
+   *   Form state.
+   * @param array $field_path
+   *   Path to paragraph field.
+   * @param int|mixed $new_delta
+   *   Delta position in list of paragraphs, where new paragraph will be added.
+   */
+  static function prepareDeltaPosition(array &$widget_state, FormStateInterface $form_state, array $field_path, $new_delta) {
+    // Increase number of items to create place for new paragraph.
+    $widget_state['items_count']++;
+
+    // Default behavior is adding to end of list and in case delta is not
+    // provided or already at end, we can skip all other steps.
+    if (!is_numeric($new_delta) || intval($new_delta) >= $widget_state['real_item_count']) {
+      return;
+    }
+
+    $widget_state['real_item_count']++;
+
+    // Limit delta between 0 and "number of items" in paragraphs widget.
+    $new_delta = max(intval($new_delta), 0);
+
+    // Change user input in order to create new delta position.
+    $user_input = NestedArray::getValue($form_state->getUserInput(), $field_path);
+
+    // Rearrange all original deltas to make one place for the new element.
+    $new_original_deltas = [];
+    foreach ($widget_state['original_deltas'] as $current_delta => $original_delta) {
+      $new_current_delta = $current_delta >= $new_delta ? $current_delta + 1 : $current_delta;
+
+      $new_original_deltas[$new_current_delta] = $original_delta;
+      $user_input[$original_delta]['_weight'] = $new_current_delta;
+    }
+
+    // Add information into delta mapping for the new element.
+    $original_deltas_size = count($widget_state['original_deltas']);
+    $new_original_deltas[$new_delta] = $original_deltas_size;
+    $user_input[$original_deltas_size]['_weight'] = $new_delta;
+
+    $widget_state['original_deltas'] = $new_original_deltas;
+    NestedArray::setValue($form_state->getUserInput(), $field_path, $user_input);
   }
 
 }
