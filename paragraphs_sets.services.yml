@@ -1,0 +1,4 @@
+services:
+  plugin.manager.paragraphs_sets.process:
+    class: Drupal\paragraphs_sets\PluginManager
+    arguments: [process, '@container.namespaces', '@cache.discovery', '@module_handler']
