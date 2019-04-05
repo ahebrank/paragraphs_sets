@@ -19,7 +19,7 @@ use Drupal\Core\Entity\Query\QueryFactory;
  *    ...
  *    field_ENTITY_REFERENCE_FIELD:
  *      plugin: create_entity
- *      reuse_if_found: true
+ *      reuse_template_if_unmodified: true
  *      data:
  *        bundle: BUNDLE_TYPE
  *        title: ENTITY_TITLE
@@ -39,7 +39,7 @@ use Drupal\Core\Entity\Query\QueryFactory;
  *
  * Recursive entity-in-entity creation is not supported.
  *
- * The `reuse_if_found` configuration key is an attempt to
+ * The `reuse_template_if_unmodified` configuration key is an attempt to
  * reduce orphaned entities. If set to `true` and an entity
  * already exists that exactly matches the templates defined
  * in the set configuration, it will be referenced (rather
@@ -148,7 +148,7 @@ class CreateEntity extends ProcessPluginBase implements ProcessPluginInterface, 
       $entity_fields_def = $this->fieldManager->getFieldDefinitions($entity_type, $delta_data['bundle']);
 
       // Reuse existing?
-      if (isset($source['reuse_if_found']) && $source['reuse_if_found']) {
+      if (isset($source['reuse_template_if_unmodified']) && $source['reuse_template_if_unmodified']) {
         $query = $this->entityQuery->get($entity_type);
         foreach ($delta_data as $data_k => $data_v) {
           if (array_key_exists($data_k, $entity_fields_def)) {
