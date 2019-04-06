@@ -26,7 +26,7 @@ function paragraphs_sets_update_8210() {
       if ($info['type'] == 'paragraphs') {
         if (!isset($info['third_party_settings']['paragraphs_sets']['paragraphs_sets']['use_paragraphs_sets'])) {
           $config_array = $config->getOriginal();
-          $config_array['content'][$field]['third_party_settings']['paragraphs_sets']['paragraphs_sets']['use_paragraphs_sets'] = 1;
+          $config_array['content'][$field]['third_party_settings']['paragraphs_sets']['paragraphs_sets']['use_paragraphs_sets'] = '1';
           $config->setData($config_array);
           $config->save();
         }
