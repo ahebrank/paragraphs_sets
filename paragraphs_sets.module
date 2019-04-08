@@ -150,16 +150,30 @@ function paragraphs_sets_field_widget_multivalue_form_alter(array &$elements, Fo
     // "add in between").
     $insert_delta = isset($user_input[$field_name]['add_more']['add_modal_form_area']['add_more_delta']) ? $user_input[$field_name]['add_more']['add_modal_form_area']['add_more_delta'] : NULL;
 
+    // Run source data through plugin system.
+    $plugin_manager = \Drupal::service('plugin.manager.paragraphs_sets.process');
+
     foreach ($sets[$set]['paragraphs'] as $key => $info) {
+      $context['key'] = $key;
+      $context['paragraphs_bundle'] = $info['type'];
+      $data = empty($info['data']) ? [] : $info['data'];
+
+      foreach ($data as $field_key => $source_info) {
+        // Skip plugin transformation if not configured.
+        if (!is_array($source_info) || !isset($source_info['plugin'])) {
+          continue;
+        }
+        // Run the transform if the plugin is available.
+        if ($plugin = $plugin_manager->createInstance($source_info['plugin'])) {
+          $data[$field_key] = $plugin->transform($source_info, $field_key, $context);
+        }
+      }
+      // Run data through hooks as well.
       $alter_hooks = [
         'paragraphs_set_data',
         'paragraphs_set_' . $set . '_data',
         'paragraphs_set_' . $set . '_' . $field_name . '_data',
       ];
-
-      $context['key'] = $key;
-      $context['paragraphs_bundle'] = $info['type'];
-      $data = empty($info['data']) ? [] : $info['data'];
       \Drupal::moduleHandler()->alter($alter_hooks, $data, $context);
 
       $item_values = [

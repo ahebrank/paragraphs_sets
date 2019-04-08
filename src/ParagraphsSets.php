@@ -288,7 +288,7 @@ class ParagraphsSets {
    * @param int|mixed $new_delta
    *   Delta position in list of paragraphs, where new paragraph will be added.
    */
-  static function prepareDeltaPosition(array &$widget_state, FormStateInterface $form_state, array $field_path, $new_delta) {
+  public static function prepareDeltaPosition(array &$widget_state, FormStateInterface $form_state, array $field_path, $new_delta) {
     // Increase number of items to create place for new paragraph.
     $widget_state['items_count']++;
 
