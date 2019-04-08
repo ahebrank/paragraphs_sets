@@ -51,11 +51,15 @@ class ParagraphsSets {
    * @return array
    *   Sets labels, keyed by id.
    */
-  public static function getSetsOptions(array $allowed_paragraphs_types = []) {
-    $set_data = static::getSets($allowed_paragraphs_types);
+  public static function getSetsOptions(array $allowed_paragraphs_types = [], $cardinality = FieldStorageDefinitionInterface::CARDINALITY_UNLIMITED) {
+    $sets_data = static::getSets($allowed_paragraphs_types);
     $opts = [];
-    foreach ($set_data as $k => $v) {
-      $opts[$k] = $v['label'];
+    foreach ($sets_data as $k => $set) {
+      if (($cardinality !== FieldStorageDefinitionInterface::CARDINALITY_UNLIMITED) && (count($set['paragraphs']) > $cardinality)) {
+        // Do not add sets having more paragraphs than allowed.
+        continue;
+      }
+      $opts[$k] = $set['label'];
     }
     return $opts;
   }
@@ -123,15 +127,7 @@ class ParagraphsSets {
 
     // Get a list of all Paragraphs types allowed in this field.
     $field_allowed_paragraphs_types = $widget->getAllowedTypes($field_definition);
-
-    foreach (static::getSets(array_keys($field_allowed_paragraphs_types)) as $key => $set) {
-      if (($cardinality !== FieldStorageDefinitionInterface::CARDINALITY_UNLIMITED) && (count($set['paragraphs']) > $cardinality)) {
-        // Do not add sets having more paragraphs than allowed.
-        continue;
-      }
-      $options[$key] = $set['label'];
-    }
-
+    $options = static::getSetsOptions($field_allowed_paragraphs_types, $cardinality);
     // Further limit sets available from widget settings.
     if (isset($settings['paragraphs_sets']['limit_sets']) && count(array_filter($settings['paragraphs_sets']['limit_sets']))) {
       $allowed_set_keys = array_intersect(array_keys($options), array_filter($settings['paragraphs_sets']['limit_sets']));

@@ -72,11 +72,12 @@ function paragraphs_sets_field_widget_third_party_settings_form(WidgetInterface 
     ];
     $paragraph_field = $field_definition->getName();
     $field_allowed_paragraphs_types = $plugin->getAllowedTypes($field_definition);
+    $cardinality = $field_definition->getFieldStorageDefinition()->getCardinality();
     $element['paragraphs_sets']['limit_sets'] = [
       '#type' => 'checkboxes',
       '#title' => t('Limit sets to'),
-      '#description' => t('Leave unchecked to show all'),
-      '#options' => ParagraphsSets::getSetsOptions(array_keys($field_allowed_paragraphs_types)),
+      '#description' => t('Leave unchecked to show all. Sets not shown here are not available due to field restrictions on cardinality or Paragraph types.'),
+      '#options' => ParagraphsSets::getSetsOptions(array_keys($field_allowed_paragraphs_types), $cardinality),
       '#default_value' => (isset($settings['paragraphs_sets']['limit_sets'])) ? $settings['paragraphs_sets']['limit_sets'] : '',
       '#states' => [
         'visible' => [
