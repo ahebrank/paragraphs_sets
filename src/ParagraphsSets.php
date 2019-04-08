@@ -21,7 +21,7 @@ class ParagraphsSets {
    *   Optional list of allowed paragraphs types.
    *
    * @return array
-   *   List of all paragraphs sets.
+   *   List of all Paragraphs Sets.
    */
   public static function getSets(array $allowed_paragraphs_types = []) {
     $query = \Drupal::entityQuery('paragraphs_set');

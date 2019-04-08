@@ -41,7 +41,7 @@ function paragraphs_sets_field_widget_settings_summary_alter(&$summary, $context
   if ($context['widget'] instanceof ParagraphsWidget) {
     $settings = $context['widget']->getThirdPartySettings('paragraphs_sets');
     if (isset($settings['paragraphs_sets']['use_paragraphs_sets']) && $settings['paragraphs_sets']['use_paragraphs_sets']) {
-      $summary[] = t('Show paragraphs sets');
+      $summary[] = t('Show Paragraphs Sets');
     }
     if (isset($settings['paragraphs_sets']['limit_sets']) && count(array_filter($settings['paragraphs_sets']['limit_sets']))) {
       $summary[] = t('Limit sets to') . ": " . implode(", ", array_filter($settings['paragraphs_sets']['limit_sets']));
@@ -57,7 +57,7 @@ function paragraphs_sets_field_widget_third_party_settings_form(WidgetInterface 
     $settings = $plugin->getThirdPartySettings('paragraphs_sets');
     $element['paragraphs_sets'] = [
       '#type' => 'fieldgroup',
-      '#title' => t('Paragraph Sets'),
+      '#title' => t('Paragraphs Sets'),
       '#attributes' => [
         'class' => [
           'fieldgroup',
@@ -67,7 +67,7 @@ function paragraphs_sets_field_widget_third_party_settings_form(WidgetInterface 
     ];
     $element['paragraphs_sets']['use_paragraphs_sets'] = [
       '#type' => 'checkbox',
-      '#title' => t('Show paragraph sets'),
+      '#title' => t('Enable Paragraphs Sets'),
       '#default_value' => (isset($settings['paragraphs_sets']['use_paragraphs_sets'])) ? $settings['paragraphs_sets']['use_paragraphs_sets'] : '',
     ];
     $paragraph_field = $field_definition->getName();

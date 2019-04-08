@@ -65,3 +65,26 @@ function paragraphs_sets_requirements($phase) {
 
   return $requirements;
 }
+
+/**
+ * Enable sets for all paragraph fields for backward compatibility.
+ */
+function paragraphs_sets_update_8201() {
+  $config_factory = \Drupal::configFactory();
+  $names = $config_factory->listAll('core.entity_form_display.');
+  foreach ($names as $name) {
+    $config = $config_factory->getEditable($name);
+    $content = $config->get('content');
+    foreach ($content as $field => $info) {
+      if ($info['type'] !== 'paragraphs') {
+        continue;
+      }
+      if (!isset($info['third_party_settings']['paragraphs_sets']['paragraphs_sets']['use_paragraphs_sets'])) {
+        $config_array = $config->getOriginal();
+        $config_array['content'][$field]['third_party_settings']['paragraphs_sets']['paragraphs_sets']['use_paragraphs_sets'] = '1';
+        $config->setData($config_array);
+        $config->save();
+      }
+    }
+  }
+}
