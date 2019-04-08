@@ -46,6 +46,23 @@ class ParagraphsSets {
   }
 
   /**
+   * Get an array of id => label of available sets.
+   *
+   * @return array
+   *   Sets labels, keyed by id.
+   */
+  public static function getSetsOptions() {
+    $query = \Drupal::entityQuery('paragraphs_set');
+    $sids = $query->execute();
+    $sets = \Drupal::entityTypeManager()->getStorage('paragraphs_set')->loadMultiple($sids);
+    $opts = [];
+    foreach ($sets as $set) {
+      $opts[$set->id()] = $set->getLabel();
+    }
+    return $opts;
+  }
+
+  /**
    * Returns the machine name for default paragraph set.
    *
    * @param \Drupal\Core\Field\WidgetBaseInterface $widget
@@ -94,6 +111,7 @@ class ParagraphsSets {
     if (!($widget instanceof ParagraphsWidget)) {
       return [];
     }
+    $settings = $widget->getThirdPartySettings('paragraphs_sets');
 
     $items = $context['items'];
     $field_definition = $items->getFieldDefinition();
@@ -108,9 +126,6 @@ class ParagraphsSets {
     // Get a list of all Paragraphs types allowed in this field.
     $field_allowed_paragraphs_types = $widget->getAllowedTypes($field_definition);
 
-    $options = [
-      '_none' => t('- None -'),
-    ];
     foreach (static::getSets(array_keys($field_allowed_paragraphs_types)) as $key => $set) {
       if (($cardinality !== FieldStorageDefinitionInterface::CARDINALITY_UNLIMITED) && (count($set['paragraphs']) > $cardinality)) {
         // Do not add sets having more paragraphs than allowed.
@@ -118,6 +133,17 @@ class ParagraphsSets {
       }
       $options[$key] = $set['label'];
     }
+
+    // Further limit sets available from widget settings.
+    if (isset($settings['paragraphs_sets']['limit_sets']) && count(array_filter($settings['paragraphs_sets']['limit_sets']))) {
+      $allowed_set_keys = array_intersect(array_keys($options), array_filter($settings['paragraphs_sets']['limit_sets']));
+      $options = array_intersect_key($options, array_flip($allowed_set_keys));
+    }
+
+    $options = [
+      '_none' => t('- None -'),
+    ] + $options;
+
     $selection_elements = [
       '#type' => 'container',
       '#theme_wrappers' => ['container'],

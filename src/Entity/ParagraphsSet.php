@@ -102,6 +102,13 @@ class ParagraphsSet extends ConfigEntityBase implements ParagraphsSetInterface {
   /**
    * {@inheritdoc}
    */
+  public function getLabel() {
+    return $this->label;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
   public function getDescription() {
     return $this->description;
   }

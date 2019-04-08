@@ -43,6 +43,9 @@ function paragraphs_sets_field_widget_settings_summary_alter(&$summary, $context
     if (isset($settings['paragraphs_sets']['use_paragraphs_sets']) && $settings['paragraphs_sets']['use_paragraphs_sets']) {
       $summary[] = t('Show paragraphs sets');
     }
+    if (isset($settings['paragraphs_sets']['limit_sets']) && count(array_filter($settings['paragraphs_sets']['limit_sets']))) {
+      $summary[] = t('Limit sets to') . ": " . implode(", ", array_filter($settings['paragraphs_sets']['limit_sets']));
+    }
   }
 }
 
@@ -67,6 +70,19 @@ function paragraphs_sets_field_widget_third_party_settings_form(WidgetInterface 
       '#title' => t('Show paragraph sets'),
       '#default_value' => (isset($settings['paragraphs_sets']['use_paragraphs_sets'])) ? $settings['paragraphs_sets']['use_paragraphs_sets'] : '',
     ];
+    $paragraph_field = $field_definition->getName();
+    $element['paragraphs_sets']['limit_sets'] = [
+      '#type' => 'checkboxes',
+      '#title' => t('Limit sets to'),
+      '#description' => t('Leave unchecked to show all'),
+      '#options' => ParagraphsSets::getSetsOptions(),
+      '#default_value' => (isset($settings['paragraphs_sets']['limit_sets'])) ? $settings['paragraphs_sets']['limit_sets'] : '',
+      '#states' => [
+        'visible' => [
+          ':input[name="fields[' . $paragraph_field . '][settings_edit_form][third_party_settings][paragraphs_sets][paragraphs_sets][use_paragraphs_sets]"]' => ['checked' => TRUE],
+        ],
+      ],
+    ];
     return $element;
   }
 }
@@ -81,7 +97,7 @@ function paragraphs_sets_field_widget_multivalue_form_alter(array &$elements, Fo
     return;
   }
   $settings = $widget->getThirdPartySettings('paragraphs_sets');
-  if (!$settings['paragraphs_sets']['use_paragraphs_sets']) {
+  if (!isset($settings['paragraphs_sets']['use_paragraphs_sets']) || !$settings['paragraphs_sets']['use_paragraphs_sets']) {
     return;
   }
 
@@ -105,8 +121,8 @@ function paragraphs_sets_field_widget_multivalue_form_alter(array &$elements, Fo
 
   // Get a list of all Paragraphs types allowed in this field.
   $field_allowed_paragraphs_types = $widget->getAllowedTypes($field_definition);
-
   $sets = ParagraphsSets::getSets(array_keys($field_allowed_paragraphs_types));
+
   $set = isset($field_state['selected_set']) ? $field_state['selected_set'] : NULL;
 
   // Consider adding a default paragraph set for new host entities.
