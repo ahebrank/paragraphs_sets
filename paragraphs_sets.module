@@ -150,30 +150,23 @@ function paragraphs_sets_field_widget_multivalue_form_alter(array &$elements, Fo
     // "add in between").
     $insert_delta = isset($user_input[$field_name]['add_more']['add_modal_form_area']['add_more_delta']) ? $user_input[$field_name]['add_more']['add_modal_form_area']['add_more_delta'] : NULL;
 
+    // Run source data through plugin system.
+    $plugin_manager = \Drupal::service('plugin.manager.paragraphs_sets.process');
+
     foreach ($sets[$set]['paragraphs'] as $key => $info) {
       $context['key'] = $key;
       $context['paragraphs_bundle'] = $info['type'];
       $data = empty($info['data']) ? [] : $info['data'];
 
-      // Run source data through plugin system.
-      $plugin_manager = \Drupal::service('plugin.manager.paragraphs_sets.process');
-      // Available plugins.
-      $plugin_ids = array_keys($plugin_manager->getDefinitions());
-      // Track the plugin instances since they'll get reused.
-      $plugins = [];
       foreach ($data as $field_key => $source_info) {
-        if (is_array($source_info)) {
-          if (isset($source_info['plugin']) && $plugin_id = $source_info['plugin']) {
-            if (in_array($plugin_id, $plugin_ids)) {
-              if (!isset($plugins[$plugin_id])) {
-                $plugins[$plugin_id] = $plugin_manager->createInstance($plugin_id);
-              }
-              // Run the transform.
-              $data[$field_key] = $plugins[$plugin_id]->transform($source_info, $field_key, $context);
-            }
-          }
+        // Skip plugin transformation if not configured.
+        if (!is_array($source_info) || !isset($source_info['plugin'])) {
+          continue;
         }
-        // Otherwise, no source data transformation.
+        // Run the transform if the plugin is available.
+        if ($plugin = $plugin_manager->createInstance($source_info['plugin'])) {
+          $data[$field_key] = $plugin->transform($source_info, $field_key, $context);
+        }
       }
       // Run data through hooks as well.
       $alter_hooks = [

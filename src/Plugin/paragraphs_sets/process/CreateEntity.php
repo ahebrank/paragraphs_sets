@@ -9,8 +9,6 @@ use Drupal\Core\Entity\EntityFieldManagerInterface;
 use Drupal\Core\Entity\Query\QueryFactory;
 
 /**
- * Simple text output of the patches.
- *
  * For sets config entries adding content to reference fields.
  *
  * Example:
