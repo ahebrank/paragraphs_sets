@@ -51,13 +51,11 @@ class ParagraphsSets {
    * @return array
    *   Sets labels, keyed by id.
    */
-  public static function getSetsOptions() {
-    $query = \Drupal::entityQuery('paragraphs_set');
-    $sids = $query->execute();
-    $sets = \Drupal::entityTypeManager()->getStorage('paragraphs_set')->loadMultiple($sids);
+  public static function getSetsOptions(array $allowed_paragraphs_types = []) {
+    $set_data = static::getSets($allowed_paragraphs_types);
     $opts = [];
-    foreach ($sets as $set) {
-      $opts[$set->id()] = $set->getLabel();
+    foreach ($set_data as $k => $v) {
+      $opts[$k] = $v['label'];
     }
     return $opts;
   }

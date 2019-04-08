@@ -71,11 +71,12 @@ function paragraphs_sets_field_widget_third_party_settings_form(WidgetInterface 
       '#default_value' => (isset($settings['paragraphs_sets']['use_paragraphs_sets'])) ? $settings['paragraphs_sets']['use_paragraphs_sets'] : '',
     ];
     $paragraph_field = $field_definition->getName();
+    $field_allowed_paragraphs_types = $plugin->getAllowedTypes($field_definition);
     $element['paragraphs_sets']['limit_sets'] = [
       '#type' => 'checkboxes',
       '#title' => t('Limit sets to'),
       '#description' => t('Leave unchecked to show all'),
-      '#options' => ParagraphsSets::getSetsOptions(),
+      '#options' => ParagraphsSets::getSetsOptions(array_keys($field_allowed_paragraphs_types)),
       '#default_value' => (isset($settings['paragraphs_sets']['limit_sets'])) ? $settings['paragraphs_sets']['limit_sets'] : '',
       '#states' => [
         'visible' => [
