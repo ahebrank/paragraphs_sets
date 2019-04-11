@@ -46,6 +46,9 @@ function paragraphs_sets_field_widget_settings_summary_alter(&$summary, $context
     if (isset($settings['paragraphs_sets']['limit_sets']) && count(array_filter($settings['paragraphs_sets']['limit_sets']))) {
       $summary[] = t('Limit sets to') . ": " . implode(", ", array_filter($settings['paragraphs_sets']['limit_sets']));
     }
+    if (isset($settings['paragraphs_sets']['auto_apply']) && $settings['paragraphs_sets']['auto_apply']) {
+      $summary[] = t('Automatically select first Set.');
+    }
   }
 }
 
@@ -70,7 +73,14 @@ function paragraphs_sets_field_widget_third_party_settings_form(WidgetInterface 
       '#title' => t('Enable Paragraphs Sets'),
       '#default_value' => (isset($settings['paragraphs_sets']['use_paragraphs_sets'])) ? $settings['paragraphs_sets']['use_paragraphs_sets'] : '',
     ];
+
     $paragraph_field = $field_definition->getName();
+    $enabled_state = [
+      'visible' => [
+        ':input[name="fields[' . $paragraph_field . '][settings_edit_form][third_party_settings][paragraphs_sets][paragraphs_sets][use_paragraphs_sets]"]' => ['checked' => TRUE],
+      ],
+    ];
+
     $field_allowed_paragraphs_types = $plugin->getAllowedTypes($field_definition);
     $cardinality = $field_definition->getFieldStorageDefinition()->getCardinality();
     $element['paragraphs_sets']['limit_sets'] = [
@@ -79,11 +89,14 @@ function paragraphs_sets_field_widget_third_party_settings_form(WidgetInterface 
       '#description' => t('Leave unchecked to show all. Sets not shown here are not available due to field restrictions on cardinality or Paragraph types.'),
       '#options' => ParagraphsSets::getSetsOptions(array_keys($field_allowed_paragraphs_types), $cardinality),
       '#default_value' => (isset($settings['paragraphs_sets']['limit_sets'])) ? $settings['paragraphs_sets']['limit_sets'] : '',
-      '#states' => [
-        'visible' => [
-          ':input[name="fields[' . $paragraph_field . '][settings_edit_form][third_party_settings][paragraphs_sets][paragraphs_sets][use_paragraphs_sets]"]' => ['checked' => TRUE],
-        ],
-      ],
+      '#states' => $enabled_state,
+    ];
+    $element['paragraphs_sets']['auto_apply'] = [
+      '#type' => 'checkbox',
+      '#title' => t('Automatically apply first available Set.'),
+      '#default_value' => (isset($settings['paragraphs_sets']['auto_apply'])) ? $settings['paragraphs_sets']['auto_apply'] : '',
+      '#description' => t('For new content, automatically add the first available set and hide the Paragraphs Sets widget.'),
+      '#states' => $enabled_state,
     ];
     return $element;
   }

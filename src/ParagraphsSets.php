@@ -191,6 +191,15 @@ class ParagraphsSets {
       $selection_elements['append_selection_button']['#suffix'] = t('to %type', ['%type' => $title]) . '</div>';
     }
 
+    if (isset($settings['paragraphs_sets']['auto_apply']) && $settings['paragraphs_sets']['auto_apply']) {
+      // Only apply to forms for new entities.
+      if ($form_state->getFormObject()->getEntity()->isNew()) {
+        $selection_elements['#attached']['library'][] = 'paragraphs_sets/drupal.paragraphs_sets.auto_apply';
+        $selection_elements['#attached']['drupalSettings']['paragraphs_sets']['field_wrapper_id'] = $field_wrapper_id;
+        $selection_elements['#attributes']['class'][] = 'visually-hidden';
+      }
+    }
+
     return $selection_elements;
   }
 
