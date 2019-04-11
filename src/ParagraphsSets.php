@@ -127,7 +127,7 @@ class ParagraphsSets {
 
     // Get a list of all Paragraphs types allowed in this field.
     $field_allowed_paragraphs_types = $widget->getAllowedTypes($field_definition);
-    $options = static::getSetsOptions($field_allowed_paragraphs_types, $cardinality);
+    $options = static::getSetsOptions(array_keys($field_allowed_paragraphs_types), $cardinality);
     // Further limit sets available from widget settings.
     if (isset($settings['paragraphs_sets']['limit_sets']) && count(array_filter($settings['paragraphs_sets']['limit_sets']))) {
       $allowed_set_keys = array_intersect(array_keys($options), array_filter($settings['paragraphs_sets']['limit_sets']));
