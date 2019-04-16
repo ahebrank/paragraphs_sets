@@ -4,6 +4,7 @@ namespace Drupal\paragraphs_sets;
 
 use Drupal\Component\Utility\Html;
 use Drupal\Component\Utility\NestedArray;
+use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Field\FieldStorageDefinitionInterface;
 use Drupal\Core\Field\WidgetBaseInterface;
 use Drupal\Core\Form\FormStateInterface;
@@ -322,6 +323,41 @@ class ParagraphsSets {
 
     $widget_state['original_deltas'] = $new_original_deltas;
     NestedArray::setValue($form_state->getUserInput(), $field_path, $user_input);
+  }
+
+  /**
+   * Check if form state is in translation.
+   *
+   * @param \Drupal\Core\Form\FormStateInterface $form_state
+   *   Form state.
+   * @param \Drupal\Core\Entity\EntityInterface $host
+   *   The host entity.
+   *
+   * @return bool
+   */
+  public static function inTranslation(FormStateInterface $form_state, EntityInterface $host) {
+    $is_in_translation = FALSE;
+    if (!$host->isTranslatable()) {
+      return;
+    }
+    if (!$host->getEntityType()->hasKey('default_langcode')) {
+      return;
+    }
+    $default_langcode_key = $host->getEntityType()->getKey('default_langcode');
+    if (!$host->hasField($default_langcode_key)) {
+      return;
+    }
+
+    if (!empty($form_state->get('content_translation'))) {
+      // Adding a language through the ContentTranslationController.
+      $is_in_translation = TRUE;
+    }
+    if ($host->hasTranslation($form_state->get('langcode')) && $host->getTranslation($form_state->get('langcode'))->get($default_langcode_key)->value == 0) {
+      // Editing a translation.
+      $is_in_translation = TRUE;
+    }
+
+    return $is_in_translation;
   }
 
 }

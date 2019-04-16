@@ -80,6 +80,7 @@ function paragraphs_sets_field_widget_multivalue_form_alter(array &$elements, Fo
   if (!$widget instanceof ParagraphsWidget) {
     return;
   }
+
   $settings = $widget->getThirdPartySettings('paragraphs_sets');
   if (empty($settings['paragraphs_sets']['use_paragraphs_sets'])) {
     return;
@@ -88,6 +89,12 @@ function paragraphs_sets_field_widget_multivalue_form_alter(array &$elements, Fo
   $items = $context['items'];
   $host = $context['items']->getEntity();
   $form = $context['form'];
+
+  if (ParagraphsSets::inTranslation($form_state, $host)) {
+    // Do not alter form while translating the host entity.
+    return;
+  }
+
   /** @var \Drupal\Core\Field\FieldDefinitionInterface $field_definition */
   $field_definition = $items->getFieldDefinition();
   $field_name = $field_definition->getName();
