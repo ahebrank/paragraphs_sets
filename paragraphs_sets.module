@@ -98,6 +98,7 @@ function paragraphs_sets_field_widget_multivalue_form_alter(array &$elements, Fo
   if (!$widget instanceof ParagraphsWidget) {
     return;
   }
+
   $settings = $widget->getThirdPartySettings('paragraphs_sets');
   if (!isset($settings['paragraphs_sets']['use_paragraphs_sets']) || !$settings['paragraphs_sets']['use_paragraphs_sets']) {
     return;
@@ -106,6 +107,12 @@ function paragraphs_sets_field_widget_multivalue_form_alter(array &$elements, Fo
   $items = $context['items'];
   $host = $context['items']->getEntity();
   $form = $context['form'];
+
+  if (ParagraphsSets::inTranslation($form_state, $host)) {
+    // Do not alter form while translating the host entity.
+    return;
+  }
+
   /** @var \Drupal\Core\Field\FieldDefinitionInterface $field_definition */
   $field_definition = $items->getFieldDefinition();
   $field_name = $field_definition->getName();
@@ -334,23 +341,6 @@ function paragraphs_sets_preprocess_field_multiple_value_form__paragraphs_sets(&
   if ($variables['multiple']) {
     $table_id = Html::getUniqueId($element['#field_name'] . '_values');
     $order_class = $element['#field_name'] . '-delta-order';
-    $header_attributes = new Attribute(['class' => ['label']]);
-    if (!empty($element['#required'])) {
-      $header_attributes['class'][] = 'js-form-required';
-      $header_attributes['class'][] = 'form-required';
-    }
-    $header = [
-      [
-        'data' => [
-          '#prefix' => '<h4' . $header_attributes . '>',
-          '#markup' => $element['#title'],
-          '#suffix' => '</h4>',
-        ],
-        'colspan' => 2,
-        'class' => ['field-label'],
-      ],
-      t('Order', [], ['context' => 'Sort order']),
-    ];
     $rows = [];
 
     // Sort items according to '_weight' (needed when the form comes back after
@@ -365,7 +355,10 @@ function paragraphs_sets_preprocess_field_multiple_value_form__paragraphs_sets(&
       elseif ($key === 'set_selection') {
         $variables['selection'] = &$element[$key];
       }
-      else {
+      elseif ($key === 'header_actions') {
+        $variables['header_actions'] = &$element[$key];
+      }
+      elseif (!empty($element[$key]['#paragraphs_bundle'])) {
         $items[] = &$element[$key];
       }
     }
@@ -393,6 +386,30 @@ function paragraphs_sets_preprocess_field_multiple_value_form__paragraphs_sets(&
           'paragraphs-item',
           Html::getClass("paragraphs-item--{$item['#paragraphs_bundle']}"),
         ],
+      ];
+    }
+
+    $header_attributes = new Attribute(['class' => ['label']]);
+    if (!empty($element['#required'])) {
+      $header_attributes['class'][] = 'js-form-required';
+      $header_attributes['class'][] = 'form-required';
+    }
+    $header = [
+      [
+        'data' => [
+          '#prefix' => '<h4' . $header_attributes . '>',
+          '#markup' => $element['#title'],
+          '#suffix' => '</h4>',
+        ],
+        'colspan' => 2,
+        'class' => ['field-label'],
+      ],
+      t('Order', [], ['context' => 'Sort order']),
+    ];
+    if (!empty($variables['header_actions'])) {
+      $header[0]['data'] = [
+        'title' => $header[0]['data'],
+        'button' => $variables['header_actions'],
       ];
     }
 
